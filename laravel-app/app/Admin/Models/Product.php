@@ -15,6 +15,7 @@ class Product extends BaseProduct
         'notes',
         'image',
         'drow_images',
+        'keyword_search',
     ];
 
     protected $casts = [

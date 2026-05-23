@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Model;
     'product_details',
     'notes',
     'image',
+    'keyword_search',
     'drow_image_1',
     'drow_image_2',
     'drow_image_3',
@@ -31,7 +32,9 @@ class Product extends Model
     {
         return [
             'per_unit_price' => 'decimal:2',
-            'drow_images' => 'array',
+            'drow_image_1' => 'array',
+            'drow_image_2' => 'array',
+            'drow_image_3' => 'array',
         ];
     }
 }

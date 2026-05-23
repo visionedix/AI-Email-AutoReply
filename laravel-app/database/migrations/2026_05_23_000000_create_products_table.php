@@ -19,9 +19,11 @@ return new class extends Migration
             $table->decimal('per_unit_price', 12, 2);
             $table->text('product_details')->nullable();
             $table->text('notes')->nullable();
+            $table->text('keyword_search')->nullable();
             $table->string('image')->nullable();
             $table->json('drow_image_1')->nullable();
             $table->json('drow_image_2')->nullable();
+            $table->json('drow_image_3')->nullable();
             $table->json('drow_image_3')->nullable();
             $table->timestamps();
         });

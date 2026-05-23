@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\EmailTemplateController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\UserController;
 use Illuminate\Support\Facades\Route;
@@ -18,6 +19,8 @@ Route::post('/admin/logout', [AuthController::class, 'logout'])->middleware('aut
 
 Route::prefix('admin')->middleware('auth')->name('admin.')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::resource('email-templates', EmailTemplateController::class)->except(['show']);
+    Route::get('email-templates/{emailTemplate}', [EmailTemplateController::class, 'show'])->name('email-templates.show');
     Route::resource('products', ProductController::class)->except(['show']);
     Route::get('products/{product}', [ProductController::class, 'show'])->name('products.show');
     Route::resource('users', UserController::class)->except(['show']);

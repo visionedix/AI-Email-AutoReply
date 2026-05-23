@@ -56,6 +56,12 @@
                 </div>
 
                 <div class="form-group">
+                    <label for="keyword_search">Keyword Search</label>
+                    <textarea name="keyword_search" id="keyword_search" class="form-control" rows="3" placeholder="keyword one, keyword two, keyword three">{{ old('keyword_search', $product->keyword_search) }}</textarea>
+                    <small class="form-text text-muted">Add multiple keywords separated by commas.</small>
+                </div>
+
+                <div class="form-group">
                     <label for="image">Product Image</label>
                     <input type="file" name="image" id="image" class="dropify dropify-event" data-default-file="{{ $product->image ? asset('storage/' . $product->image) : '' }}">
                 </div>

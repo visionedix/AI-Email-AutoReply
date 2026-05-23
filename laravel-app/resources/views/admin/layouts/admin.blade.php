@@ -59,6 +59,12 @@
                             <p>Products</p>
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a href="{{ route('admin.email-templates.index') }}" class="nav-link {{ request()->routeIs('admin.email-templates.*') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-envelope-open-text"></i>
+                            <p>Email Templates</p>
+                        </a>
+                    </li>
                 </ul>
             </nav>
         </div>

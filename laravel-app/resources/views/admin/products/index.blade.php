@@ -18,6 +18,7 @@
                         <th>SKU</th>
                         <th>Unit</th>
                         <th>Per Unit Price</th>
+                        <th>Keyword Search</th>
                         <th>Created</th>
                         <th>Actions</th>
                     </tr>
@@ -37,6 +38,7 @@
                             <td>{{ $product->sku }}</td>
                             <td>{{ $product->unit }}</td>
                             <td>{{ number_format((float) $product->per_unit_price, 2) }}</td>
+                            <td>{{ $product->keyword_search ?: '-' }}</td>
                             <td>{{ $product->created_at->format('Y-m-d') }}</td>
                             <td>
                                 <a href="{{ route('admin.products.show', $product) }}" class="btn btn-sm btn-secondary">View</a>
@@ -50,7 +52,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8" class="text-center">No products found.</td>
+                            <td colspan="9" class="text-center">No products found.</td>
                         </tr>
                     @endforelse
                 </tbody>

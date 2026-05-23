@@ -26,6 +26,7 @@ class ProductController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $data = $this->validatedData($request);
+        $data['keyword_search'] = $this->normalizeKeywords($data['keyword_search'] ?? null);
 
         if ($request->hasFile('image')) {
             $data['image'] = $request->file('image')->store('products', 'public');
@@ -46,6 +47,7 @@ class ProductController extends Controller
     public function update(Request $request, Product $product): RedirectResponse
     {
         $data = $this->validatedData($request, $product);
+        $data['keyword_search'] = $this->normalizeKeywords($data['keyword_search'] ?? null);
 
         if ($request->hasFile('image')) {
             $this->deleteFile($product->image);
@@ -94,10 +96,23 @@ class ProductController extends Controller
             'per_unit_price' => ['required', 'numeric', 'min:0'],
             'product_details' => ['nullable', 'string'],
             'notes' => ['nullable', 'string'],
+            'keyword_search' => ['nullable', 'string'],
             'image' => ['nullable', 'image', 'max:2048'],
             'drow_images' => ['nullable', 'array', 'max:4'],
             'drow_images.*' => ['nullable', 'image', 'max:2048'],
         ]);
+    }
+
+    private function normalizeKeywords(?string $keywords): ?string
+    {
+        $keywords = collect(explode(',', $keywords ?? ''))
+            ->map(fn (string $keyword) => trim($keyword))
+            ->filter()
+            ->unique()
+            ->values()
+            ->implode(', ');
+
+        return $keywords !== '' ? $keywords : null;
     }
 
     /**

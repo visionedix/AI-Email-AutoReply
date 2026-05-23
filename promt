@@ -1,0 +1,6 @@
+Create Email template CRUD opration 
+create CRUD for Email template like User 
+for this crud create Controller , model , route and resorce file like as User model 
+also file structure same as user model 
+this this model use below fields 
+template name ,template subject , template body,template other details,template document ,keyword search

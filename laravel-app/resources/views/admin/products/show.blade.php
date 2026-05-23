@@ -32,6 +32,9 @@
                         <dt class="col-sm-4">Notes</dt>
                         <dd class="col-sm-8">{{ $product->notes ?: '-' }}</dd>
 
+                        <dt class="col-sm-4">Keyword Search</dt>
+                        <dd class="col-sm-8">{{ $product->keyword_search ?: '-' }}</dd>
+
                         <dt class="col-sm-4">Created At</dt>
                         <dd class="col-sm-8">{{ $product->created_at->format('Y-m-d H:i') }}</dd>
                     </dl>
