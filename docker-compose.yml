@@ -1,0 +1,122 @@
+version: "3.9"
+
+services:
+
+  mysql:
+    image: mysql:8
+    container_name: email_mysql
+
+    restart: unless-stopped
+
+    env_file:
+      - .env
+
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+
+    ports:
+      - "${MYSQL_PORT}:3306"
+
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./mysql/init:/docker-entrypoint-initdb.d
+
+    networks:
+      - email_network
+
+
+
+  laravel:
+    build:
+      context: ./laravel-app
+
+    container_name: laravel_app
+
+    restart: unless-stopped
+
+    ports:
+      - "${APP_PORT}:8000"
+
+    volumes:
+      - ./laravel-app:/var/www
+
+    depends_on:
+      - mysql
+
+    networks:
+      - email_network
+
+
+
+  n8n:
+
+    image: n8nio/n8n:latest
+
+    container_name: n8n_app
+
+    restart: unless-stopped
+
+    ports:
+      - "${N8N_PORT}:5678"
+
+    env_file:
+      - .env
+
+    environment:
+
+      DB_TYPE: mysqldb
+      DB_MYSQLDB_HOST: mysql
+      DB_MYSQLDB_DATABASE: ${MYSQL_DATABASE}
+      DB_MYSQLDB_USER: ${MYSQL_USER}
+      DB_MYSQLDB_PASSWORD: ${MYSQL_PASSWORD}
+
+      N8N_BASIC_AUTH_ACTIVE: true
+      N8N_BASIC_AUTH_USER: ${N8N_USER}
+      N8N_BASIC_AUTH_PASSWORD: ${N8N_PASSWORD}
+
+      N8N_HOST: localhost
+      WEBHOOK_URL: http://localhost:5678
+
+    volumes:
+      - n8n_data:/home/node/.n8n
+
+    depends_on:
+      - mysql
+
+    networks:
+      - email_network
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+
+    restart: unless-stopped
+
+    ports:
+      - "8080:80"
+
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+
+      MYSQL_ROOT_PASSWORD: root123
+
+    depends_on:
+      - mysql
+
+    networks:
+      - email_network
+
+
+
+volumes:
+
+  mysql_data:
+  n8n_data:
+
+networks:
+
+  email_network:
