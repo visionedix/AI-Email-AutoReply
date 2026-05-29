@@ -18,7 +18,7 @@ services:
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
 
     ports:
-      - "${MYSQL_PORT}:3306"
+      - "9001:3306"
 
     volumes:
       - mysql_data:/var/lib/mysql
@@ -38,7 +38,7 @@ services:
     restart: unless-stopped
 
     ports:
-      - "${APP_PORT}:8000"
+      - "9002:8000"
 
     volumes:
       - ./laravel-app:/var/www
@@ -51,43 +51,43 @@ services:
 
 
 
-  n8n:
+  # n8n:
 
-    image: n8nio/n8n:latest
+  #   image: n8nio/n8n:latest
 
-    container_name: n8n_app
+  #   container_name: n8n_app
 
-    restart: unless-stopped
+  #   restart: unless-stopped
 
-    ports:
-      - "${N8N_PORT}:5678"
+  #   ports:
+  #     - "${N8N_PORT}:5678"
 
-    env_file:
-      - .env
+  #   env_file:
+  #     - .env
 
-    environment:
+  #   environment:
 
-      DB_TYPE: mysqldb
-      DB_MYSQLDB_HOST: mysql
-      DB_MYSQLDB_DATABASE: ${MYSQL_DATABASE}
-      DB_MYSQLDB_USER: ${MYSQL_USER}
-      DB_MYSQLDB_PASSWORD: ${MYSQL_PASSWORD}
+  #     DB_TYPE: mysqldb
+  #     DB_MYSQLDB_HOST: mysql
+  #     DB_MYSQLDB_DATABASE: ${MYSQL_DATABASE}
+  #     DB_MYSQLDB_USER: ${MYSQL_USER}
+  #     DB_MYSQLDB_PASSWORD: ${MYSQL_PASSWORD}
 
-      N8N_BASIC_AUTH_ACTIVE: true
-      N8N_BASIC_AUTH_USER: ${N8N_USER}
-      N8N_BASIC_AUTH_PASSWORD: ${N8N_PASSWORD}
+  #     N8N_BASIC_AUTH_ACTIVE: true
+  #     N8N_BASIC_AUTH_USER: ${N8N_USER}
+  #     N8N_BASIC_AUTH_PASSWORD: ${N8N_PASSWORD}
 
-      N8N_HOST: localhost
-      WEBHOOK_URL: http://localhost:5678
+  #     N8N_HOST: localhost
+  #     WEBHOOK_URL: http://localhost:5678
 
-    volumes:
-      - n8n_data:/home/node/.n8n
+  #   volumes:
+  #     - n8n_data:/home/node/.n8n
 
-    depends_on:
-      - mysql
+  #   depends_on:
+  #     - mysql
 
-    networks:
-      - email_network
+  #   networks:
+  #     - email_network
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
@@ -96,7 +96,7 @@ services:
     restart: unless-stopped
 
     ports:
-      - "8080:80"
+      - "9004:80"
 
     environment:
       PMA_HOST: mysql
@@ -115,7 +115,7 @@ services:
 volumes:
 
   mysql_data:
-  n8n_data:
+  # n8n_data:
 
 networks:
 

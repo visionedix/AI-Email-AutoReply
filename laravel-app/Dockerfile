@@ -18,8 +18,13 @@ COPY . .
 
 RUN composer install
 
-RUN chmod -R 777 storage bootstrap/cache
+RUN mkdir -p storage/framework/cache
+RUN mkdir -p storage/framework/sessions
+RUN mkdir -p storage/framework/views
+RUN mkdir -p storage/logs
+
+RUN chmod -R 775 storage bootstrap/cache
 
 EXPOSE 8000
 
-CMD ["php","artisan","serve","--host=0.0.0.0","--port=8000"]
+CMD sh -c "php artisan storage:link || true && php artisan serve --host=0.0.0.0 --port=8000"

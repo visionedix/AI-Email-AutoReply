@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('email_templates', function (Blueprint $table) {
             $table->id();
+            $table->string('product_id')->nullable();
             $table->string('template_name');
             $table->string('template_subject');
             $table->longText('template_body');
@@ -20,6 +21,8 @@ return new class extends Migration
             $table->string('template_document')->nullable();
             $table->text('keyword_search')->nullable();
             $table->timestamps();
+            $table->softDeletes();
+            // $table->foreign('product_id')->references('id')->on('products')->onDelete('set null');
         });
     }
 

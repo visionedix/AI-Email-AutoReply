@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Model;
     'template_other_details',
     'template_document',
     'keyword_search',
+    'product_id',
 ])]
 class EmailTemplate extends Model
 {

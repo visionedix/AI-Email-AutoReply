@@ -20,12 +20,16 @@ return new class extends Migration
             $table->text('product_details')->nullable();
             $table->text('notes')->nullable();
             $table->text('keyword_search')->nullable();
+            $table->text('other_details')->nullable();
+            $table->text('specification')->nullable();
+            $table->text('quotation_documents')->nullable();
             $table->string('image')->nullable();
+            $table->string('do')->nullable();
             $table->json('drow_image_1')->nullable();
             $table->json('drow_image_2')->nullable();
             $table->json('drow_image_3')->nullable();
-            $table->json('drow_image_3')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

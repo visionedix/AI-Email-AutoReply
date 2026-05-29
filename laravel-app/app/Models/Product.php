@@ -15,9 +15,13 @@ use Illuminate\Database\Eloquent\Model;
     'notes',
     'image',
     'keyword_search',
+    'other_details',
+    'specification',
+    'quotation_documents',
     'drow_image_1',
     'drow_image_2',
     'drow_image_3',
+
 ])]
 class Product extends Model
 {
