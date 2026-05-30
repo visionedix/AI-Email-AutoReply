@@ -10,17 +10,17 @@
 
                 <form method="GET" action="{{ route('admin.mail.messages.index') }}" class="d-flex align-items-center" style="gap: 0.5rem;">
                     <input type="hidden" name="limit" value="{{ $filters['limit'] }}">
-                    <div class="custom-control custom-switch">
+                    <div class="form-check form-switch">
                         <input
                             type="checkbox"
-                            class="custom-control-input"
+                            class="form-check-input"
                             id="unread_only"
                             name="unread_only"
                             value="1"
                             {{ $filters['unread_only'] ? 'checked' : '' }}
                             onchange="this.form.submit()"
                         >
-                        <label class="custom-control-label" for="unread_only">Unread only</label>
+                        <label class="form-check-label" for="unread_only">Unread only</label>
                     </div>
                     <noscript>
                         <button type="submit" class="btn btn-sm btn-primary">Apply</button>
@@ -31,7 +31,7 @@
         <div class="card-body p-0">
             <div class="table-responsive">
                 <table class="table table-hover mb-0">
-                    <thead class="thead-light">
+                    <thead class="table-light">
                         <tr>
                             <th style="width: 90px;">Status</th>
                             <th>From</th>
@@ -44,7 +44,7 @@
                         @forelse ($messages as $message)
                             <tr class="{{ $message['isRead'] ? '' : 'table-warning' }}">
                                 <td>
-                                    <span class="badge {{ $message['isRead'] ? 'badge-secondary' : 'badge-warning' }}">
+                                    <span class="badge rounded-pill {{ $message['isRead'] ? 'bg-secondary' : 'bg-warning text-dark' }}">
                                         {{ $message['isRead'] ? 'Read' : 'Unread' }}
                                     </span>
                                 </td>
@@ -56,7 +56,7 @@
                                     @endif
                                 </td>
                                 <td>{{ $message['date'] ? \Illuminate\Support\Carbon::parse($message['date'])->format('Y-m-d H:i') : '-' }}</td>
-                                <td class="text-right">
+                                <td class="text-end">
                                     <a href="{{ route('admin.mail.messages.show', $message['id']) }}" class="btn btn-sm btn-primary">
                                         View
                                     </a>

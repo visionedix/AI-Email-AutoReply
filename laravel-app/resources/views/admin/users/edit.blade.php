@@ -11,15 +11,15 @@
             @csrf
             @method('PUT')
             <div class="card-body">
-                <div class="form-group">
+                <div class="mb-3">
                     <label for="name">Name</label>
                     <input type="text" name="name" id="name" class="form-control" value="{{ old('name', $user->name) }}" required>
                 </div>
-                <div class="form-group">
+                <div class="mb-3">
                     <label for="email">Email</label>
                     <input type="email" name="email" id="email" class="form-control" value="{{ old('email', $user->email) }}" required>
                 </div>
-                <div class="form-group">
+                <div class="mb-3">
                     <label for="password">Password <small class="text-muted">(leave blank to keep current password)</small></label>
                     <input type="password" name="password" id="password" class="form-control">
                 </div>

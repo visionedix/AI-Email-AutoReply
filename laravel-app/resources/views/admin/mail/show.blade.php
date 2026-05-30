@@ -12,8 +12,8 @@
                         {{ $message['from'] ?: 'Unknown sender' }}
                     </div>
                 </div>
-                <div class="text-right">
-                    <span class="badge {{ $message['isRead'] ? 'badge-secondary' : 'badge-warning' }}">
+                <div class="text-end">
+                    <span class="badge rounded-pill {{ $message['isRead'] ? 'bg-secondary' : 'bg-warning text-dark' }}">
                         {{ $message['isRead'] ? 'Read' : 'Unread' }}
                     </span>
                 </div>

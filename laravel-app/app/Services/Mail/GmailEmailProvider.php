@@ -22,7 +22,7 @@ class GmailEmailProvider implements EmailProvider
         if ($unreadOnly) {
             $query['q'] = 'in:inbox is:unread';
         }
-
+        
         return $this->gmail()
             ->get($this->userUrl('/messages'), $query)
             ->throw()

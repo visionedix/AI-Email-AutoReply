@@ -10,15 +10,15 @@
         <form action="{{ route('admin.users.store') }}" method="POST">
             @csrf
             <div class="card-body">
-                <div class="form-group">
+                <div class="mb-3">
                     <label for="name">Name</label>
                     <input type="text" name="name" id="name" class="form-control" value="{{ old('name') }}" required>
                 </div>
-                <div class="form-group">
+                <div class="mb-3">
                     <label for="email">Email</label>
                     <input type="email" name="email" id="email" class="form-control" value="{{ old('email') }}" required>
                 </div>
-                <div class="form-group">
+                <div class="mb-3">
                     <label for="password">Password</label>
                     <input type="password" name="password" id="password" class="form-control" required>
                 </div>
