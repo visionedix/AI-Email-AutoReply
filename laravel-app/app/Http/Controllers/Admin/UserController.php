@@ -7,19 +7,24 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
     public function index()
     {
-        $users = User::orderBy('id', 'desc')->paginate(15);
+        $users = User::with(['roles', 'permissions'])->orderBy('id', 'desc')->paginate(15);
 
         return view('admin.users.index', compact('users'));
     }
 
     public function create()
     {
-        return view('admin.users.create');
+        $roles = Role::orderBy('name')->get();
+        $permissions = Permission::orderBy('name')->get();
+
+        return view('admin.users.create', compact('roles', 'permissions'));
     }
 
     public function store(Request $request): RedirectResponse
@@ -28,18 +33,34 @@ class UserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'string', 'min:8'],
+            'roles' => ['nullable', 'array'],
+            'roles.*' => ['integer', 'exists:roles,id'],
+            'permissions' => ['nullable', 'array'],
+            'permissions.*' => ['integer', 'exists:permissions,id'],
         ]);
 
-        $data['password'] = Hash::make($data['password']);
+        $roles = $data['roles'] ?? [];
+        $permissions = $data['permissions'] ?? [];
+        $userData = [
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'password' => Hash::make($data['password']),
+        ];
 
-        User::create($data);
+        $user = User::create($userData);
+        $user->syncRoles($roles);
+        $user->syncPermissions($permissions);
 
         return redirect()->route('admin.users.index')->with('success', 'User created successfully.');
     }
 
     public function edit(User $user)
     {
-        return view('admin.users.edit', compact('user'));
+        $user->load(['roles', 'permissions']);
+        $roles = Role::orderBy('name')->get();
+        $permissions = Permission::orderBy('name')->get();
+
+        return view('admin.users.edit', compact('user', 'roles', 'permissions'));
     }
 
     public function update(Request $request, User $user): RedirectResponse
@@ -48,9 +69,13 @@ class UserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email,' . $user->id],
             'password' => ['nullable', 'string', 'min:8'],
+            'roles' => ['nullable', 'array'],
+            'roles.*' => ['integer', 'exists:roles,id'],
+            'permissions' => ['nullable', 'array'],
+            'permissions.*' => ['integer', 'exists:permissions,id'],
         ]);
 
-        if ($data['password']) {
+        if (! empty($data['password'])) {
             $user->password = Hash::make($data['password']);
         }
 
@@ -60,6 +85,8 @@ class UserController extends Controller
         ]);
 
         $user->save();
+        $user->syncRoles($data['roles'] ?? []);
+        $user->syncPermissions($data['permissions'] ?? []);
 
         return redirect()->route('admin.users.index')->with('success', 'User updated successfully.');
     }
@@ -73,6 +100,8 @@ class UserController extends Controller
 
     public function show(User $user)
     {
+        $user->load(['roles.permissions', 'permissions']);
+
         return view('admin.users.show', compact('user'));
     }
 }

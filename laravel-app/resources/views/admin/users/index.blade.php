@@ -15,6 +15,8 @@
                         <th>ID</th>
                         <th>Name</th>
                         <th>Email</th>
+                        <th>Roles</th>
+                        <th>Permissions</th>
                         <th>Created</th>
                         <th>Actions</th>
                     </tr>
@@ -25,6 +27,20 @@
                             <td>{{ $user->id }}</td>
                             <td>{{ $user->name }}</td>
                             <td>{{ $user->email }}</td>
+                            <td>
+                                @forelse($user->roles as $role)
+                                    <span class="badge bg-primary me-1 mb-1">{{ $role->name }}</span>
+                                @empty
+                                    <span class="text-muted">-</span>
+                                @endforelse
+                            </td>
+                            <td>
+                                @forelse($user->permissions as $permission)
+                                    <span class="badge bg-secondary me-1 mb-1">{{ \App\Support\AdminAccess::label($permission->name) }}</span>
+                                @empty
+                                    <span class="text-muted">-</span>
+                                @endforelse
+                            </td>
                             <td>{{ $user->created_at->format('Y-m-d') }}</td>
                             <td>
                                 <a href="{{ route('admin.users.show', $user) }}" class="btn btn-sm btn-secondary">View</a>
@@ -38,7 +54,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="text-center">No users found.</td>
+                            <td colspan="7" class="text-center">No users found.</td>
                         </tr>
                     @endforelse
                 </tbody>

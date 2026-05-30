@@ -143,12 +143,16 @@
                             The dashboard is designed to help you move from email intake to draft creation faster.
                         </p>
                         <div class="d-flex flex-wrap gap-2">
-                            <a href="{{ route('admin.mail.messages.index') }}" class="btn btn-light btn-lg">
-                                <i class="fas fa-inbox me-2"></i>Open Inbox
-                            </a>
-                            <a href="{{ route('admin.products.index') }}" class="btn btn-outline-light btn-lg">
-                                <i class="fas fa-box me-2"></i>Manage Products
-                            </a>
+                            @can('manage-mail')
+                                <a href="{{ route('admin.mail.messages.index') }}" class="btn btn-light btn-lg">
+                                    <i class="fas fa-inbox me-2"></i>Open Inbox
+                                </a>
+                            @endcan
+                            @can('manage-products')
+                                <a href="{{ route('admin.products.index') }}" class="btn btn-outline-light btn-lg">
+                                    <i class="fas fa-box me-2"></i>Manage Products
+                                </a>
+                            @endcan
                         </div>
                     </div>
                     <div class="col-lg-4">
@@ -305,43 +309,49 @@
                     <div class="card-body">
                         <div class="row g-3">
                             <div class="col-12">
-                                <a href="{{ route('admin.mail.messages.index') }}" class="shortcut-link">
-                                    <div class="shortcut-card">
-                                        <div class="card-body d-flex align-items-center justify-content-between">
-                                            <div>
-                                                <div class="fw-semibold text-dark">Inbox</div>
-                                                <div class="text-muted small">Review new customer emails</div>
+                                @can('manage-mail')
+                                    <a href="{{ route('admin.mail.messages.index') }}" class="shortcut-link">
+                                        <div class="shortcut-card">
+                                            <div class="card-body d-flex align-items-center justify-content-between">
+                                                <div>
+                                                    <div class="fw-semibold text-dark">Inbox</div>
+                                                    <div class="text-muted small">Review new customer emails</div>
+                                                </div>
+                                                <i class="fas fa-inbox text-primary fs-4"></i>
                                             </div>
-                                            <i class="fas fa-inbox text-primary fs-4"></i>
                                         </div>
-                                    </div>
-                                </a>
+                                    </a>
+                                @endcan
                             </div>
                             <div class="col-12">
-                                <a href="{{ route('admin.products.index') }}" class="shortcut-link">
-                                    <div class="shortcut-card">
-                                        <div class="card-body d-flex align-items-center justify-content-between">
-                                            <div>
-                                                <div class="fw-semibold text-dark">Products</div>
-                                                <div class="text-muted small">Update catalog and documents</div>
+                                @can('manage-products')
+                                    <a href="{{ route('admin.products.index') }}" class="shortcut-link">
+                                        <div class="shortcut-card">
+                                            <div class="card-body d-flex align-items-center justify-content-between">
+                                                <div>
+                                                    <div class="fw-semibold text-dark">Products</div>
+                                                    <div class="text-muted small">Update catalog and documents</div>
+                                                </div>
+                                                <i class="fas fa-box text-success fs-4"></i>
                                             </div>
-                                            <i class="fas fa-box text-success fs-4"></i>
                                         </div>
-                                    </div>
-                                </a>
+                                    </a>
+                                @endcan
                             </div>
                             <div class="col-12">
-                                <a href="{{ route('admin.quotations.index') }}" class="shortcut-link">
-                                    <div class="shortcut-card">
-                                        <div class="card-body d-flex align-items-center justify-content-between">
-                                            <div>
-                                                <div class="fw-semibold text-dark">Quotations</div>
-                                                <div class="text-muted small">Track drafts and sent items</div>
+                                @can('manage-quotations')
+                                    <a href="{{ route('admin.quotations.index') }}" class="shortcut-link">
+                                        <div class="shortcut-card">
+                                            <div class="card-body d-flex align-items-center justify-content-between">
+                                                <div>
+                                                    <div class="fw-semibold text-dark">Quotations</div>
+                                                    <div class="text-muted small">Track drafts and sent items</div>
+                                                </div>
+                                                <i class="fas fa-file-invoice-dollar text-warning fs-4"></i>
                                             </div>
-                                            <i class="fas fa-file-invoice-dollar text-warning fs-4"></i>
                                         </div>
-                                    </div>
-                                </a>
+                                    </a>
+                                @endcan
                             </div>
                         </div>
                     </div>

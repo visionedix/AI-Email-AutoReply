@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use App\Support\AdminAccess;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -21,7 +22,7 @@ class UserSeeder extends Seeder
         ];
 
         foreach ($users as $user) {
-            User::updateOrCreate(
+            $model = User::updateOrCreate(
                 ['email' => $user['email']],
                 [
                     'name' => $user['name'],
@@ -29,6 +30,12 @@ class UserSeeder extends Seeder
                     'password' => Hash::make('password'),
                 ],
             );
+
+            if ($model->email === 'admin@gmail.com') {
+                $model->syncRoles('admin');
+            } else {
+                $model->syncRoles('staff');
+            }
         }
     }
 }

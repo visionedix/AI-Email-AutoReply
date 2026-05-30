@@ -20,6 +20,24 @@
                         <dt class="col-sm-4">Email</dt>
                         <dd class="col-sm-8">{{ $user->email }}</dd>
 
+                        <dt class="col-sm-4">Roles</dt>
+                        <dd class="col-sm-8">
+                            @forelse($user->roles as $role)
+                                <span class="badge bg-primary me-1 mb-1">{{ $role->name }}</span>
+                            @empty
+                                <span class="text-muted">No roles assigned</span>
+                            @endforelse
+                        </dd>
+
+                        <dt class="col-sm-4">Permissions</dt>
+                        <dd class="col-sm-8">
+                            @forelse($user->permissions as $permission)
+                                <span class="badge bg-secondary me-1 mb-1">{{ \App\Support\AdminAccess::label($permission->name) }}</span>
+                            @empty
+                                <span class="text-muted">No direct permissions assigned</span>
+                            @endforelse
+                        </dd>
+
                         <dt class="col-sm-4">Created At</dt>
                         <dd class="col-sm-8">{{ $user->created_at->format('Y-m-d H:i') }}</dd>
                     </dl>
