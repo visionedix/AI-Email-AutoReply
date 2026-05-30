@@ -5,13 +5,13 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\QuotationStoreRequest;
 use App\Http\Requests\Admin\QuotationUpdateRequest;
+use App\Contracts\QuotationAiService;
 use App\Jobs\CreateQuotationDraftJob;
 use App\Models\EmailTemplate;
 use App\Models\Quotation;
 use App\Services\Mail\EmailProviderManager;
 use App\Services\Mail\GmailDraftService;
 use App\Services\ProductKeywordMatcher;
-use App\Services\QuotationGeneratorService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -22,7 +22,7 @@ class QuotationController extends Controller
     public function __construct(
         private readonly EmailProviderManager $mail,
         private readonly ProductKeywordMatcher $matcher,
-        private readonly QuotationGeneratorService $generator,
+        private readonly QuotationAiService $ai,
         private readonly GmailDraftService $drafts,
     ) {
     }
@@ -73,15 +73,30 @@ class QuotationController extends Controller
             ]);
         }
 
-        [$product, $template, $matchedKeyword] = $this->resolveQuotationTarget($matches);
+        $aiSelection = $this->ai->identifyProduct($message, $matches->all());
+        $selectedMatch = $this->resolveSelectedMatch($matches, $aiSelection['product'] ?? null);
+        $selectedMatch ??= $matches->first();
+        $product = $selectedMatch['product'] ?? null;
+        $matchedKeyword = $aiSelection['matched_keyword'] ?? ($selectedMatch['matched_keyword'] ?? null);
 
-        if (! $product || ! $template) {
+        if (! $product) {
+            return back()->withErrors([
+                'message_id' => 'A matching product was found, but AI could not select a product to use.',
+            ]);
+        }
+
+        $template = EmailTemplate::query()
+            ->where('product_id', (string) $product->id)
+            ->orderBy('id')
+            ->first();
+
+        if (! $template) {
             return back()->withErrors([
                 'message_id' => 'A matching product was found, but no email template exists for it.',
             ]);
         }
 
-        $generated = $this->generator->generate($product, $template, $message);
+        $generated = $this->ai->generateQuotation($product, $template, $message, $matchedKeyword);
         $customerEmail = $this->customerEmail($message);
         $quotation = Quotation::create([
             'message_id' => $messageId,
@@ -107,7 +122,7 @@ class QuotationController extends Controller
 
         return redirect()
             ->to('/admin/quotations/'.$quotation->id)
-            ->with('success', 'Quotation generated successfully.'.($matchedKeyword ? ' Matched keyword: '.$matchedKeyword : ''));
+            ->with('success', 'Quotation generated successfully.'.($matchedKeyword ? ' AI matched keyword: '.$matchedKeyword : ''));
     }
 
     public function show(Quotation $quotation)
@@ -237,23 +252,24 @@ class QuotationController extends Controller
 
     /**
      * @param  array<int, array{product:\App\Models\Product, matched_keyword:string, matched_keywords:array<int, string>}>  $matches
-     * @return array{0: ?\App\Models\Product, 1: ?EmailTemplate, 2: ?string}
+     * @param  \App\Models\Product|null  $selectedProduct
+     * @return array{product:\App\Models\Product, matched_keyword:?string, matched_keywords:array<int, string>}|null
      */
-    private function resolveQuotationTarget($matches): array
+    private function resolveSelectedMatch($matches, $selectedProduct): ?array
     {
         foreach ($matches as $match) {
             $product = $match['product'];
-            $template = EmailTemplate::query()
-                ->where('product_id', (string) $product->id)
-                ->orderBy('id')
-                ->first();
 
-            if ($template) {
-                return [$product, $template, $match['matched_keyword'] ?? null];
+            if ($selectedProduct && (int) $product->id === (int) $selectedProduct->id) {
+                return [
+                    'product' => $product,
+                    'matched_keyword' => $match['matched_keyword'] ?? null,
+                    'matched_keywords' => $match['matched_keywords'] ?? [],
+                ];
             }
         }
 
-        return [null, null, null];
+        return null;
     }
 
     /**

@@ -237,7 +237,7 @@ $webViewUrl = $urlMatch[0] ?? null;
 
                 <div class="row">
 
-                    <div class="col-md-8">
+                    <div class="col-md-7">
 
                         @foreach($matchedProducts as $match)
 
@@ -262,7 +262,41 @@ $webViewUrl = $urlMatch[0] ?? null;
 
                     </div>
 
-                    <div class="col-md-4">
+                    <div class="col-md-5">
+
+                        @if(!empty($aiRecommendation))
+
+                            <div class="card border-info mb-3">
+
+                                <div class="card-body">
+
+                                    <h5 class="mb-2">
+                                        AI Recommendation
+                                    </h5>
+
+                                    <div class="small text-muted mb-2">
+                                        Confidence: {{ number_format((float) ($aiRecommendation['confidence'] ?? 0), 2) }}
+                                    </div>
+
+                                    <div class="fw-semibold">
+                                        {{ $aiRecommendation['product']->product_name ?? 'No selection' }}
+                                    </div>
+
+                                    <div class="small text-muted mt-2">
+                                        Keyword: {{ $aiRecommendation['matched_keyword'] ?? '-' }}
+                                    </div>
+
+                                    @if(!empty($aiRecommendation['reason']))
+                                        <div class="small mt-2">
+                                            {{ $aiRecommendation['reason'] }}
+                                        </div>
+                                    @endif
+
+                                </div>
+
+                            </div>
+
+                        @endif
 
                         <div class="card border-success">
 

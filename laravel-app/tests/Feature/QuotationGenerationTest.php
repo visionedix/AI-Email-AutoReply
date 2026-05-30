@@ -22,6 +22,11 @@ class QuotationGenerationTest extends TestCase
 
         Cache::flush();
 
+        Config::set('ai.driver', 'auto');
+        Config::set('ai.timeout', 15);
+        Config::set('ai.openai.api_key', 'test-openai-key');
+        Config::set('ai.openai.base_url', 'https://api.openai.com/v1');
+        Config::set('ai.openai.model', 'chat-latest');
         Config::set('mailbox.provider', 'gmail');
         Config::set('mailbox.timeout', 15);
         Config::set('mailbox.gmail.client_id', 'client-id');
@@ -71,6 +76,41 @@ class QuotationGenerationTest extends TestCase
                     ],
                 ],
             ], 200),
+            'api.openai.com/v1/responses' => Http::sequence()
+                ->push([
+                    'output' => [
+                        [
+                            'type' => 'message',
+                            'content' => [
+                                [
+                                    'type' => 'output_text',
+                                    'text' => json_encode([
+                                        'selected_product_id' => 1,
+                                        'matched_keyword' => 'bearing',
+                                        'confidence' => 0.97,
+                                        'reason' => 'The email is clearly requesting the SKF Bearing product.',
+                                    ]),
+                                ],
+                            ],
+                        ],
+                    ],
+                ], 200)
+                ->push([
+                    'output' => [
+                        [
+                            'type' => 'message',
+                            'content' => [
+                                [
+                                    'type' => 'output_text',
+                                    'text' => json_encode([
+                                        'subject' => 'Quotation for SKF Bearing',
+                                        'body' => 'Dear Buyer Name, thank you for your inquiry. Please find the quotation for SKF Bearing attached.',
+                                    ]),
+                                ],
+                            ],
+                        ],
+                    ],
+                ], 200),
             'gmail.googleapis.com/*/drafts' => Http::response([
                 'id' => 'draft-1',
                 'message' => [
@@ -101,6 +141,8 @@ class QuotationGenerationTest extends TestCase
             'template_id' => (string) $template->id,
             'gmail_draft_id' => 'draft-1',
             'customer_email' => 'buyer@example.com',
+            'subject' => 'Quotation for SKF Bearing',
+            'body' => 'Dear Buyer Name, thank you for your inquiry. Please find the quotation for SKF Bearing attached.',
             'status' => 'draft',
         ]);
     }

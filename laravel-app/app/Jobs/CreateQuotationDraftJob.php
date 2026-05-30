@@ -6,6 +6,7 @@ use App\Models\Quotation;
 use App\Services\Mail\GmailDraftService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
@@ -28,13 +29,26 @@ class CreateQuotationDraftJob implements ShouldQueue
 
         try {
             if (filled($quotation->gmail_draft_id)) {
-                $result = $drafts->updateQuotationDraft(
-                    $quotation->gmail_draft_id,
-                    $quotation->subject,
-                    $quotation->body,
-                    (string) $quotation->attachment,
-                    $quotation->customer_email
-                );
+                try {
+                    $result = $drafts->updateQuotationDraft(
+                        $quotation->gmail_draft_id,
+                        $quotation->subject,
+                        $quotation->body,
+                        (string) $quotation->attachment,
+                        $quotation->customer_email
+                    );
+                } catch (RequestException $exception) {
+                    if ((int) $exception->response->status() !== 404) {
+                        throw $exception;
+                    }
+
+                    $result = $drafts->createQuotationDraft(
+                        $quotation->subject,
+                        $quotation->body,
+                        (string) $quotation->attachment,
+                        $quotation->customer_email
+                    );
+                }
             } else {
                 $result = $drafts->createQuotationDraft(
                     $quotation->subject,

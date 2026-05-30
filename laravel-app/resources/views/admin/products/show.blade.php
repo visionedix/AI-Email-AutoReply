@@ -32,8 +32,25 @@
                         <dt class="col-sm-4">Notes</dt>
                         <dd class="col-sm-8">{{ $product->notes ?: '-' }}</dd>
 
+                        <dt class="col-sm-4">Other Details</dt>
+                        <dd class="col-sm-8">{{ $product->other_details ?: '-' }}</dd>
+
+                        <dt class="col-sm-4">Specification</dt>
+                        <dd class="col-sm-8">{{ $product->specification ?: '-' }}</dd>
+
                         <dt class="col-sm-4">Keyword Search</dt>
                         <dd class="col-sm-8">{{ $product->keyword_search ?: '-' }}</dd>
+
+                        <dt class="col-sm-4">Quotation Document</dt>
+                        <dd class="col-sm-8">
+                            @if($product->quotation_documents)
+                                <a href="{{ asset('storage/' . $product->quotation_documents) }}" target="_blank" rel="noopener">
+                                    View PDF
+                                </a>
+                            @else
+                                -
+                            @endif
+                        </dd>
 
                         <dt class="col-sm-4">Created At</dt>
                         <dd class="col-sm-8">{{ $product->created_at->format('Y-m-d H:i') }}</dd>
@@ -51,8 +68,16 @@
 
             <h5>Drow Images</h5>
             <div class="row">
-                @forelse($product->drow_images ?? [] as $image)
-                    <div class="col-md-3 col-sm-6 mb-3">
+                @php
+                    $drowImages = collect([
+                        $product->drow_image_1,
+                        $product->drow_image_2,
+                        $product->drow_image_3,
+                    ])->filter();
+                @endphp
+
+                @forelse($drowImages as $image)
+                    <div class="col-md-4 col-sm-6 mb-3">
                         <img src="{{ asset('storage/' . $image) }}" alt="Drow image" class="img-fluid img-thumbnail">
                     </div>
                 @empty

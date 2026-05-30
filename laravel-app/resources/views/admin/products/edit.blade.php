@@ -56,6 +56,16 @@
                 </div>
 
                 <div class="mb-3">
+                    <label for="other_details">Other Details</label>
+                    <textarea name="other_details" id="other_details" class="form-control" rows="3">{{ old('other_details', $product->other_details) }}</textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label for="specification">Specification</label>
+                    <textarea name="specification" id="specification" class="form-control" rows="4">{{ old('specification', $product->specification) }}</textarea>
+                </div>
+
+                <div class="mb-3">
                     <label for="keyword_search">Keyword Search</label>
                     <textarea name="keyword_search" id="keyword_search" class="form-control" rows="3" placeholder="keyword one, keyword two, keyword three">{{ old('keyword_search', $product->keyword_search) }}</textarea>
                     <small class="form-text text-muted">Add multiple keywords separated by commas.</small>
@@ -66,12 +76,18 @@
                     <input type="file" name="image" id="image" class="dropify dropify-event" data-default-file="{{ $product->image ? asset('storage/' . $product->image) : '' }}">
                 </div>
 
+                <div class="mb-3">
+                    <label for="quotation_documents">Quotation Documents (PDF)</label>
+                    <input type="file" name="quotation_documents" id="quotation_documents" class="dropify dropify-event" data-default-file="{{ $product->quotation_documents ? asset('storage/' . $product->quotation_documents) : '' }}" accept="application/pdf">
+                    <small class="form-text text-muted">Replace the attached PDF quotation document if needed.</small>
+                </div>
+
                 <div class="row">
-                    @for($i = 0; $i < 4; $i++)
-                        <div class="col-md-6">
+                    @for($i = 1; $i <= 3; $i++)
+                        <div class="col-md-4">
                             <div class="mb-3">
-                                <label for="drow_image_{{ $i }}">Drow Image {{ $i + 1 }}</label>
-                                <input type="file" name="drow_images[{{ $i }}]" id="drow_image_{{ $i }}" class="dropify dropify-event" data-default-file="{{ isset($product->drow_images[$i]) ? asset('storage/' . $product->drow_images[$i]) : '' }}">
+                                <label for="drow_image_{{ $i }}">Drow Image {{ $i }}</label>
+                                <input type="file" name="drow_image_{{ $i }}" id="drow_image_{{ $i }}" class="dropify dropify-event" data-default-file="{{ isset($product->{'drow_image_'.$i}) ? asset('storage/' . $product->{'drow_image_'.$i}) : '' }}">
                             </div>
                         </div>
                     @endfor

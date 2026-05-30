@@ -14,12 +14,19 @@ class Product extends BaseProduct
         'product_details',
         'notes',
         'image',
-        'drow_images',
         'keyword_search',
+        'other_details',
+        'specification',
+        'quotation_documents',
+        'drow_image_1',
+        'drow_image_2',
+        'drow_image_3',
     ];
 
     protected $casts = [
         'per_unit_price' => 'decimal:2',
-        'drow_images' => 'array',
+        'drow_image_1' => 'array',
+        'drow_image_2' => 'array',
+        'drow_image_3' => 'array',
     ];
 }

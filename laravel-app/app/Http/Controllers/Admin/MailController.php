@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Contracts\QuotationAiService;
 use App\Http\Controllers\Controller;
 use App\Models\Quotation;
 use App\Services\Mail\EmailProviderManager;
 use App\Services\ProductKeywordMatcher;
 use Illuminate\Http\Client\RequestException;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -17,6 +19,7 @@ class MailController extends Controller
     public function __construct(
         private readonly EmailProviderManager $mail,
         private readonly ProductKeywordMatcher $matcher,
+        private readonly QuotationAiService $ai,
     ) {
     }
 
@@ -48,6 +51,9 @@ class MailController extends Controller
         $message = $this->normalizeMessage($this->mail->message($messageId));
         $searchContent = trim($message['subject'].' '.strip_tags($message['body']));
         $matchedProducts = $this->matcher->matchProducts($searchContent);
+        $aiRecommendation = $matchedProducts->isNotEmpty()
+            ? $this->ai->identifyProduct($message, $matchedProducts->all())
+            : null;
         $quotation = Quotation::query()
             ->where('message_id', $messageId)
             ->orWhere('gmail_message_id', $messageId)
@@ -57,11 +63,12 @@ class MailController extends Controller
         return response()->view('admin.mail.show', [
             'message' => $message,
             'matchedProducts' => $matchedProducts,
+            'aiRecommendation' => $aiRecommendation,
             'quotation' => $quotation,
         ]);
     }
 
-    public function markAsRead(string $messageId): JsonResponse
+    public function markAsRead(string $messageId): JsonResponse|RedirectResponse
     {
         if (request()->expectsJson()) {
             return $this->respond(fn () => $this->mail->markAsRead($messageId));

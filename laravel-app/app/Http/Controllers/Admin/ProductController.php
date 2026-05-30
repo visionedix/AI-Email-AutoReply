@@ -32,7 +32,11 @@ class ProductController extends Controller
             $data['image'] = $request->file('image')->store('products', 'public');
         }
 
-        $data['drow_images'] = $this->storeDrowImages($request);
+        if ($request->hasFile('quotation_documents')) {
+            $data['quotation_documents'] = $request->file('quotation_documents')->store('products/quotation-documents', 'public');
+        }
+
+        $data = array_merge($data, $this->storeDrowImages($request));
 
         Product::create($data);
 
@@ -54,7 +58,12 @@ class ProductController extends Controller
             $data['image'] = $request->file('image')->store('products', 'public');
         }
 
-        $data['drow_images'] = $this->storeDrowImages($request, $product->drow_images ?? []);
+        if ($request->hasFile('quotation_documents')) {
+            $this->deleteFile($product->quotation_documents);
+            $data['quotation_documents'] = $request->file('quotation_documents')->store('products/quotation-documents', 'public');
+        }
+
+        $data = array_merge($data, $this->storeDrowImages($request, $product));
 
         $product->update($data);
 
@@ -64,9 +73,10 @@ class ProductController extends Controller
     public function destroy(Product $product): RedirectResponse
     {
         $this->deleteFile($product->image);
+        $this->deleteFile($product->quotation_documents);
 
-        foreach ($product->drow_images ?? [] as $image) {
-            $this->deleteFile($image);
+        foreach (['drow_image_1', 'drow_image_2', 'drow_image_3'] as $field) {
+            $this->deleteFile($product->{$field});
         }
 
         $product->delete();
@@ -96,10 +106,14 @@ class ProductController extends Controller
             'per_unit_price' => ['required', 'numeric', 'min:0'],
             'product_details' => ['nullable', 'string'],
             'notes' => ['nullable', 'string'],
+            'other_details' => ['nullable', 'string'],
+            'specification' => ['nullable', 'string'],
             'keyword_search' => ['nullable', 'string'],
             'image' => ['nullable', 'image', 'max:2048'],
-            'drow_images' => ['nullable', 'array', 'max:4'],
-            'drow_images.*' => ['nullable', 'image', 'max:2048'],
+            'quotation_documents' => ['nullable', 'file', 'mimes:pdf', 'max:10240'],
+            'drow_image_1' => ['nullable', 'image', 'max:2048'],
+            'drow_image_2' => ['nullable', 'image', 'max:2048'],
+            'drow_image_3' => ['nullable', 'image', 'max:2048'],
         ]);
     }
 
@@ -116,29 +130,33 @@ class ProductController extends Controller
     }
 
     /**
-     * @param array<int, string> $existingImages
-     *
-     * @return array<int, string>
+     * @param  Product|null  $product
+     * @return array<string, string|null>
      */
-    private function storeDrowImages(Request $request, array $existingImages = []): array
+    private function storeDrowImages(Request $request, ?Product $product = null): array
     {
-        $images = $existingImages;
+        $fields = ['drow_image_1', 'drow_image_2', 'drow_image_3'];
+        $images = [];
 
-        foreach ($request->file('drow_images', []) as $index => $file) {
-            if ($file === null) {
+        foreach ($fields as $field) {
+            $existingPath = $product?->{$field};
+            $file = $request->file($field);
+
+            if ($file) {
+                if ($existingPath) {
+                    $this->deleteFile($existingPath);
+                }
+
+                $images[$field] = $file->store('products/drow-images', 'public');
                 continue;
             }
 
-            if (isset($images[$index])) {
-                $this->deleteFile($images[$index]);
+            if ($product && filled($existingPath)) {
+                $images[$field] = $existingPath;
             }
-
-            $images[$index] = $file->store('products/drow-images', 'public');
         }
 
-        ksort($images);
-
-        return array_values(array_filter($images));
+        return $images;
     }
 
     private function deleteFile(?string $path): void
