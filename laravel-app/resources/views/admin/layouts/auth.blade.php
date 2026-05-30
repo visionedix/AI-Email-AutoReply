@@ -8,8 +8,28 @@
     <link rel="stylesheet" href="{{ asset('adminlte/css/adminlte.min.css') }}">
     @stack('styles')
 </head>
-<body class="hold-transition login-page bg-light" data-bs-theme="light">
-    <div class="login-box">
+<body class="hold-transition bg-light" data-bs-theme="light">
+    <style>
+        html, body {
+            min-height: 100vh;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        .auth-fullscreen {
+            min-height: 100vh;
+            width: 100%;
+        }
+
+        .auth-fullscreen > * {
+            width: 100%;
+            margin: 0;
+        }
+    </style>
+
+    <div class="auth-fullscreen">
         @yield('content')
     </div>
 
