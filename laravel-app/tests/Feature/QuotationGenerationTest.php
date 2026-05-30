@@ -5,14 +5,14 @@ namespace Tests\Feature;
 use App\Admin\Models\EmailTemplate;
 use App\Admin\Models\Product;
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-class MailViewerTest extends TestCase
+class QuotationGenerationTest extends TestCase
 {
     use RefreshDatabase;
 
@@ -32,9 +32,10 @@ class MailViewerTest extends TestCase
         Config::set('mailbox.gmail.api_url', 'https://gmail.googleapis.com/gmail/v1');
     }
 
-    public function test_it_renders_a_message_view_page(): void
+    public function test_it_generates_a_quotation_and_creates_a_gmail_draft(): void
     {
         Storage::fake('public');
+        Storage::disk('public')->put('quotations/sample.pdf', 'pdf-content');
 
         $product = Product::create([
             'product_name' => 'SKF Bearing',
@@ -45,31 +46,35 @@ class MailViewerTest extends TestCase
             'quotation_documents' => 'quotations/sample.pdf',
         ]);
 
-        EmailTemplate::create([
+        $template = EmailTemplate::create([
             'product_id' => (string) $product->id,
             'template_name' => 'SKF Quotation',
             'template_subject' => 'Quotation for {product_name}',
-            'template_body' => 'Dear {customer_name}, please find quotation for {product_name} on {date} from {company_name}.',
+            'template_body' => 'Dear {customer_name}, please find quotation for {product_name}.',
         ]);
-
-        Storage::disk('public')->put('quotations/sample.pdf', 'pdf-content');
 
         Http::fake([
             'oauth2.googleapis.com/*' => Http::response(['access_token' => 'token'], 200),
-            'gmail.googleapis.com/*' => Http::response([
-                'id' => 'message-id',
-                'threadId' => 'thread-id',
+            'gmail.googleapis.com/*/messages/message-1' => Http::response([
+                'id' => 'message-1',
+                'threadId' => 'thread-1',
                 'labelIds' => ['INBOX'],
                 'payload' => [
                     'headers' => [
-                        ['name' => 'Subject', 'value' => 'Hello there'],
-                        ['name' => 'From', 'value' => 'Customer Name <sender@example.com>'],
-                        ['name' => 'To', 'value' => 'me@example.com'],
+                        ['name' => 'Subject', 'value' => 'Need bearing quotation'],
+                        ['name' => 'From', 'value' => 'Buyer Name <buyer@example.com>'],
+                        ['name' => 'To', 'value' => 'sales@example.com'],
                         ['name' => 'Date', 'value' => 'Wed, 29 May 2026 10:00:00 +0000'],
                     ],
                     'body' => [
-                        'data' => rtrim(strtr(base64_encode('<p>Body about bearing inquiry and requirement</p>'), '+/', '-_'), '='),
+                        'data' => rtrim(strtr(base64_encode('<p>Please send a bearing quotation. This is an inquiry.</p>'), '+/', '-_'), '='),
                     ],
+                ],
+            ], 200),
+            'gmail.googleapis.com/*/drafts' => Http::response([
+                'id' => 'draft-1',
+                'message' => [
+                    'id' => 'draft-message-1',
                 ],
             ], 200),
         ]);
@@ -83,13 +88,20 @@ class MailViewerTest extends TestCase
 
         $this->actingAs($user);
 
-        $response = $this->get('/admin/mail/messages/message-id');
+        $response = $this->post('/admin/quotations', [
+            'message_id' => 'message-1',
+        ]);
 
-        $response->assertOk();
-        $response->assertSee('Hello there');
-        $response->assertSee('sender@example.com');
-        $response->assertSee('Generate Quotation');
-        $response->assertSee('SKF Bearing');
-        $response->assertSee('Inquiry');
+        $response->assertRedirect();
+
+        $this->assertDatabaseHas('quotations', [
+            'message_id' => 'message-1',
+            'gmail_message_id' => 'message-1',
+            'product_id' => $product->id,
+            'template_id' => (string) $template->id,
+            'gmail_draft_id' => 'draft-1',
+            'customer_email' => 'buyer@example.com',
+            'status' => 'draft',
+        ]);
     }
 }

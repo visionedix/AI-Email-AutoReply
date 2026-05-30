@@ -41,15 +41,38 @@
                                     <p>Email Templates</p>
                                 </a>
                             </li>
+                            <li class="nav-item">
+                                <a href="{{ url('/admin/quotations') }}" class="nav-link {{ request()->is('admin/quotations*') ? 'active' : '' }}">
+                                    <i class="nav-icon fas fa-file-invoice-dollar"></i>
+                                    <p>Quotations</p>
+                                </a>
+                            </li>
                         </ul>
                     </li>
-                    
-                    <li class="nav-item">
-                        <a href="{{ route('admin.mail.messages.index') }}" class="nav-link {{ request()->routeIs('admin.mail.messages.*') ? 'active' : '' }}">
-                            <i class="nav-icon fas fa-envelope-open-text"></i>
-                            <p>G-box</p>
+                     <li class="nav-item">
+                        <a href="#" class="nav-link active">
+                        <i class="nav-icon bi bi-envelope"></i>
+                        <p>
+                            G-box
+                            <i class="nav-arrow bi bi-chevron-right"></i>
+                        </p>
                         </a>
+                        <ul class="nav nav-treeview" role="navigation" aria-label="Navigation 4" style="display: none; box-sizing: border-box;">
+                             <li class="nav-item">
+                                <a href="{{ route('admin.mail.messages.index') }}" class="nav-link {{ request()->routeIs('admin.mail.messages.*') ? 'active' : '' }}">
+                                    <i class="nav-icon fas fa-envelope-open-text"></i>
+                                    <p>Inbox</p>
+                                </a>
+                            </li>
+                             <li class="nav-item">
+                                <a href="{{ route('admin.quotations.index') }}" class="nav-link {{ request()->routeIs('admin.quotations.index.*') ? 'active' : '' }}">
+                                    <i class="nav-icon fas fa-file-invoice-dollar"></i>
+                                    <p>Quotations</p>
+                                </a>
+                            </li>
+                        </ul>
                     </li>
+                   
                      
                 </ul>
             </nav>

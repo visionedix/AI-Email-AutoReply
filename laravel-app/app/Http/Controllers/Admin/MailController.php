@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Quotation;
 use App\Services\Mail\EmailProviderManager;
+use App\Services\ProductKeywordMatcher;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -12,8 +14,10 @@ use RuntimeException;
 
 class MailController extends Controller
 {
-    public function __construct(private readonly EmailProviderManager $mail)
-    {
+    public function __construct(
+        private readonly EmailProviderManager $mail,
+        private readonly ProductKeywordMatcher $matcher,
+    ) {
     }
 
     public function inbox(Request $request)
@@ -41,8 +45,19 @@ class MailController extends Controller
 
     public function show(string $messageId)
     {
+        $message = $this->normalizeMessage($this->mail->message($messageId));
+        $searchContent = trim($message['subject'].' '.strip_tags($message['body']));
+        $matchedProducts = $this->matcher->matchProducts($searchContent);
+        $quotation = Quotation::query()
+            ->where('message_id', $messageId)
+            ->orWhere('gmail_message_id', $messageId)
+            ->latest('id')
+            ->first();
+
         return response()->view('admin.mail.show', [
-            'message' => $this->normalizeMessage($this->mail->message($messageId)),
+            'message' => $message,
+            'matchedProducts' => $matchedProducts,
+            'quotation' => $quotation,
         ]);
     }
 

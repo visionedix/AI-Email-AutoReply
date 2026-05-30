@@ -11,6 +11,18 @@
             @csrf
             <div class="card-body">
                 <div class="mb-3">
+                    <label for="product_id">Product</label>
+                    <select name="product_id" id="product_id" class="form-select">
+                        <option value="">Select a product</option>
+                        @foreach ($products as $product)
+                            <option value="{{ $product->id }}" @selected(old('product_id') == $product->id)>
+                                {{ $product->product_name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="mb-3">
                     <label for="template_name">Template Name</label>
                     <input type="text" name="template_name" id="template_name" class="form-control" value="{{ old('template_name') }}" required>
                 </div>

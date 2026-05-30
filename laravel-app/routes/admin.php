@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\EmailTemplateController;
 use App\Http\Controllers\Admin\MailController;
+use App\Http\Controllers\Admin\QuotationController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\UserController;
 use Illuminate\Support\Facades\Route;
@@ -26,6 +27,14 @@ Route::prefix('admin')->middleware('auth')->name('admin.')->group(function () {
     Route::get('products/{product}', [ProductController::class, 'show'])->name('products.show');
     Route::resource('users', UserController::class)->except(['show']);
     Route::get('users/{user}', [UserController::class, 'show'])->name('users.show');
+
+    Route::get('quotations', [QuotationController::class, 'index'])->name('quotations.index');
+    Route::post('quotations', [QuotationController::class, 'store'])->name('quotations.store');
+    Route::get('quotations/{quotation}', [QuotationController::class, 'show'])->name('quotations.show');
+    Route::get('quotations/{quotation}/edit', [QuotationController::class, 'edit'])->name('quotations.edit');
+    Route::put('quotations/{quotation}', [QuotationController::class, 'update'])->name('quotations.update');
+    Route::patch('quotations/{quotation}', [QuotationController::class, 'update']);
+    Route::delete('quotations/{quotation}', [QuotationController::class, 'destroy'])->name('quotations.destroy');
 
     Route::get('mail/messages', [MailController::class, 'inbox'])->name('mail.messages.index');
     Route::get('mail/unread', [MailController::class, 'inbox'])->name('mail.messages.unread');
